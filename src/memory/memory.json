@@ -1,7 +1,7 @@
 {
     "system_name": "Cassian",
     "creator": "Jan",
-    "boot_count": 1,
+    "boot_count": 3,
     "commands": {
         "add task": "to add a task to my queue",
         "view tasks": "to view all my tasks in queue",
@@ -14,6 +14,8 @@
         "open vs code",
         "open spotify",
         "open powershell",
-        "close chrome"
+        "close chrome",
+        "open vs code",
+        "close vs code"
     ]
 }
