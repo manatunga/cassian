@@ -1,21 +1,14 @@
 {
     "system_name": "Cassian",
     "creator": "Jan",
-    "boot_count": 4,
+    "boot_count": 2,
     "commands": {
         "add task": "to add a task to my queue",
         "view tasks": "to view all my tasks in queue",
         "status": "to view my current system metrics",
+        "telemetry": "to fetch live environmental weather data",
         "help": "to view all commands I recognize",
         "exit": "to exit the system"
     },
-    "task_queue": [
-        "open chrome",
-        "open vs code",
-        "open spotify",
-        "open powershell",
-        "close chrome",
-        "open vs code",
-        "close vs code"
-    ]
+    "task_queue": []
 }

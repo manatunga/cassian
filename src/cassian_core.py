@@ -4,7 +4,9 @@ Primary execution file for Cassian
 
 # Import dependencies
 import json
+import urllib.request
 from pathlib import Path
+from urllib.error import HTTPError, URLError 
 
 
 # Master class for Cassian's core object
@@ -14,6 +16,7 @@ class CassianCore():
         self.filepath = filepath
         self.memory = {}
         self.is_running = True
+        self.weather_url = 'https://api.open-meteo.com/v1/forecast?latitude=6.84&longitude=79.92&current=temperature_2m'
     
     # Method to save/update Cassian's memory
     def save_memory(self):
@@ -39,7 +42,8 @@ class CassianCore():
                 'commands': {
                     'add task': 'to add a task to my queue', 
                     'view tasks': 'to view all my tasks in queue', 
-                    'status': 'to view my current system metrics', 
+                    'status': 'to view my current system metrics',
+                    'telemetry': 'to fetch live environmental weather data', 
                     'help': 'to view all commands I recognize', 
                     'exit': 'to exit the system' },
                 'task_queue': []
@@ -92,9 +96,31 @@ class CassianCore():
         print(f"\t'add task'  - {self.memory['commands']['add task']}")
         print(f"\t'view tasks'  - {self.memory['commands']['view tasks']}")
         print(f"\t'status'  - {self.memory['commands']['status']}")
+        print(f"\t'telemetry'  - {self.memory['commands']['telemetry']}")
         print(f"\t'help'  - {self.memory['commands']['help']}")
         print(f"\t'exit'  - {self.memory['commands']['exit']}")
         print('')
+    
+    # Method to fetch environmental weather data
+    def fetch_telemetry(self):
+        try:
+            req = urllib.request.Request(
+                self.weather_url,
+                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+            )
+
+            with urllib.request.urlopen(req) as res:
+                raw_telemetry = res.read().decode('utf-8')
+                telemetry = json.loads(raw_telemetry)
+            
+            print('Network transmission complete. Reading is processed.\n')
+            return telemetry
+        except HTTPError as err:
+            print(f"Oh my, I'm afraid the server responded with  HTTP status code {err.code}")
+            return None
+        except URLError as err:
+            print(f"Apologies {self.memory['creator']}, but I failed to reach the server.\nThe reason was: {err.reason}")
+            return None
     
     # Method to terminate Cassian session
     def exit(self):
@@ -122,6 +148,14 @@ class CassianCore():
                 self.is_running = False
             elif command == '':
                 print('Whoa there! There was no command entered.')
+            elif command == 'telemetry':
+                print("Polling remote telemetry grid...")
+                reading = self.fetch_telemetry()
+                if reading:
+                    # Target specific target values inside the payload matrix
+                    temp = reading["current"]["temperature_2m"]
+                    unit = reading["current_units"]["temperature_2m"]
+                    print(f"Current Environment Temperature: {temp}{unit}\n")
             else:
                 print(f"Sorry {self.memory['creator']}, but I don't recognize that command :(\nPlease try again.")
 
