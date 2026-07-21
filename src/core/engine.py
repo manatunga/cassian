@@ -24,34 +24,39 @@ class CassianCore():
 
     def __init__(self, filepath):
         self.filepath = filepath
-        self.version = '1.6.0'
+        self.version = '0.7.0'
         self.memory = {}
         self.is_running = True
+        self.chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
         self.weather_url = 'https://api.open-meteo.com/v1/forecast?latitude=6.84&longitude=79.92&current=temperature_2m'
     
+
     # Method to clear terminal screen securely
     def clear_screen(self):
         subprocess.run('cls' if os.name == 'nt' else 'clear', shell=True)
     
+
     # Renders Cassian's ASCII header
     def display_banner(self):
         self.clear_screen()
         banner = f"""{CYAN}
-  ██████╗ █████╗ ███████╗███████╗██╗██████╗ ███╗   ██╗
- ██╔════╝██╔══██╗██╔════╝██╔════╝██║██╔══██╗████╗  ██║
- ██║     ███████║███████╗███████╗██║██████╔╝██╔██╗ ██║
- ██║     ██╔══██║╚════██║╚════██║██║██╔══██╗██║╚██╗██║
- ╚██████╗██║  ██║███████║███████║██║██║  ██║██║ ╚████║
-  ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝{RESET}
+ ██████╗ █████╗ ███████╗███████╗██╗ █████╗ ███╗   ██╗
+██╔════╝██╔══██╗██╔════╝██╔════╝██║██╔══██╗████╗  ██║
+██║     ███████║███████╗███████╗██║███████║██╔██╗ ██║
+██║     ██╔══██║╚════██║╚════██║██║██╔══██║██║╚██╗██║
+╚██████╗██║  ██║███████║███████║██║██║  ██║██║ ╚████║
+ ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝{RESET}
 {MAGENTA}           -- CYBERPUNK HUD EDITION v{self.version} --           {RESET}
 ========================================================"""
         print(banner)
 
-    # Method to save/update Cassian's memory
+
+    # Helper method to save/update Cassian's memory
     def save_memory(self):
         self.filepath.parent.mkdir(parents=True, exist_ok=True)
         with open(self.filepath, 'w') as file:
             json.dump(self.memory, file, indent=4)
+
 
     # Method to load Cassian's memory
     def load_memory(self):
@@ -75,6 +80,8 @@ class CassianCore():
                 'commands': {
                     'add task': 'to add a task to my queue', 
                     'view tasks': 'to view all my tasks in queue', 
+                    'run task': 'to execute the top task in queue',
+                    'run <app/url>': 'to directly execute an app or URL immediately',
                     'status': 'to view my current system metrics',
                     'telemetry': 'to fetch live environmental weather data', 
                     'help': 'to view all commands I recognize', 
@@ -88,6 +95,7 @@ class CassianCore():
             print(f'Boot Count: {GREEN}{self.memory["boot_count"]}{RESET} | Build: {MAGENTA}v{self.version}{RESET}')
             print(f'Welcome, {MAGENTA}{self.memory["creator"]}{RESET}\n')
     
+
     # Method to add tasks to queue
     def add_task(self):
         adding_tasks = True
@@ -97,6 +105,7 @@ class CassianCore():
                 print(f"{YELLOW}{self.memory['creator']}, there was no task entered...{RESET}")
             else: 
                 self.memory['task_queue'].append(task)
+                self.save_memory()
                 print(f"{GREEN}Task \"{RESET}{task}{GREEN}\" added to queue successfully.{RESET}")
     
             while True:
@@ -110,6 +119,7 @@ class CassianCore():
                     print(f"{YELLOW}Please respond with '{RESET}y{YELLOW}' or '{RESET}n{YELLOW}'.{RESET}")
         
         print(f"{GREEN}Task queue updated.{RESET}\n")
+
 
     # Method to view all tasks currently in queue
     def view_tasks(self):
@@ -126,6 +136,70 @@ class CassianCore():
                     print(f"Task {index + 1}:\t{task}")
             print('')
     
+
+    # Helper method to parse and spawn local executables/URLs
+    def execute_action(self, target_action):
+        action = target_action.lower().strip()
+
+        if 'notepad' in action:
+            subprocess.Popen(['notepad.exe'])
+            return True
+        elif 'calc' in action or 'calculator' in action:
+            subprocess.Popen(['calc.exe'])
+            return True
+        elif 'code' in action or 'vs code' in action or 'vscode' in action:
+            subprocess.Popen(['code'], shell=True)
+            return True
+        elif 'chrome' in action or 'google chrome' in action or 'google' in action:
+            subprocess.Popen([self.chrome_path, 'https://google.com'])
+            return True
+        elif 'steam' in action:
+            subprocess.Popen(["cmd", "/c", "start", "steam://"])
+            return True
+        elif 'spotify' in action:
+            subprocess.Popen(["cmd", "/c", "start", "spotify://"])
+            return True
+        elif 'discord' in action:
+            subprocess.Popen(["cmd", "/c", "start", "discord://"])
+            return True
+        elif 'whatsapp' in action:
+            subprocess.Popen(["cmd", "/c", "start", "whatsapp://"])
+            return True
+        elif action.startswith('http://') or action.startswith('https://'):
+            subprocess.Popen([self.chrome_path, action], shell=True)
+            return True
+        else:
+            return False
+
+
+    # Method to run the top queued task (current task)
+    def run_task(self):
+        if len(self.memory['task_queue']) == 0:
+            print(f"{YELLOW}There are currently no tasks on queue.{RESET}\n")
+            return
+        
+        current_task = self.memory['task_queue'][0]
+        print(f"\n{CYAN}Attempting execution for queued task:{RESET} {MAGENTA}\"{current_task}\"{RESET}")
+
+        if self.execute_action(current_task):
+            completed = self.memory['task_queue'].pop(0)
+            self.save_memory()
+            print(f"{GREEN}Successfully executed the task: \"{completed}\".{RESET}\n")
+            print(f"{CYAN}Task has been removed from queue.{RESET}")
+        else:
+            print(f"{YELLOW}No automated executable mapped for: \"{current_task}\".{RESET}")
+            print(f"{CYAN}Leaving task in queue as a manial reminder.{RESET}\n")
+    
+
+    # Method for immediate execution bypassing the queue
+    def execute_direct_action(self, action_string):
+        print(f"\n{CYAN}Executing direct action:{RESET} {MAGENTA}\"{action_string}\"{RESET}")
+        if self.execute_action(action_string):
+            print(f"{GREEN}Action spawned successfully.{RESET}\n")
+        else:
+            print(f"{YELLOW}Unrecognized action: \"{action_string}\". Couldn't map it to a local app or valid URL.{RESET}\n")
+
+
     # Method to view core performance details
     def view_status(self):
         print(f"\n{CYAN}---------- SYSTEM METRICS ----------{RESET}\n")
@@ -135,6 +209,7 @@ class CassianCore():
         print(f"\tBoot Count:\t{GREEN}{self.memory['boot_count']}{RESET}")
         print('')
 
+
     # Method to view all functional commands for Cassian
     def view_commands(self):
         print(f"\n{CYAN}---------- COMMAND INDEX ----------{RESET}\n")
@@ -142,6 +217,7 @@ class CassianCore():
             print(f"\t{MAGENTA}'{cmd}'{RESET} - {desc}")
         print('')
     
+
     # Method to fetch environmental weather data
     def fetch_telemetry(self):
         try:
@@ -163,6 +239,7 @@ class CassianCore():
             print(f"{RED}Apologies {self.memory['creator']}, but I failed to reach the server.\nThe reason was: {err.reason}{RESET}")
             return None
     
+
     # Method to terminate Cassian session
     def exit(self):
         print(f"{CYAN}Updating memory...{RESET}")
@@ -170,6 +247,7 @@ class CassianCore():
         print(f"{GREEN}Memory successfully updated. Terminating session...{RESET}")
         print(f"Have a nice day, {MAGENTA}{self.memory['creator']}!{RESET}")
     
+
     # Method to execute master loop and run Cassian
     def run(self):
         self.display_banner()
@@ -200,5 +278,13 @@ class CassianCore():
                     temp = reading["current"]["temperature_2m"]
                     unit = reading["current_units"]["temperature_2m"]
                     print(f"{CYAN}Current Environment Temperature:{RESET} {GREEN}{temp}{unit}{RESET}\n")
+            elif command == 'run task' or command == 'execute':
+                self.run_task()
+            elif command.startswith('run '):
+                action = command[4:].strip()
+                if action == '':
+                    print(f"{YELLOW}You didn't specify an action for direct execution{RESET}")
+                else:
+                    self.execute_direct_action(action)
             else:
                 print(f"{YELLOW}Sorry {self.memory['creator']}, but I don't recognize that command :({RESET}\nPlease try again.")
