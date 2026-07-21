@@ -1,0 +1,27 @@
+{
+    "system_name": "Cassian",
+    "version": "0.9.0",
+    "creator": "Jan",
+    "boot_count": 10,
+    "commands": {
+        "add task": "to add a task to my queue",
+        "view tasks": "to view all my tasks in queue",
+        "run task": "to execute the top task in queue",
+        "run <app/url>": "to directly execute an app or URL immediately",
+        "status": "to view my current system metrics",
+        "telemetry": "to fetch live environmental weather data",
+        "help": "to view all commands I recognize",
+        "clear": "to clear my terminal",
+        "exit": "to exit the system"
+    },
+    "task_queue": [
+        {
+            "task": "open chrome",
+            "priority": 1
+        },
+        {
+            "task": "open spotify",
+            "priority": 2
+        }
+    ]
+}
