@@ -1,2 +1,15 @@
-# Python dependencies
-.venv
+# 1. Python artifacts
+__pycache__/
+*.py[cod]
+
+# 2. Virtual environments
+.venv/
+venv/
+env/
+
+# 3. Environment variables
+.env
+
+# 4. IDE
+.vscode/
+.idea/

@@ -158,16 +158,3 @@ class CassianCore():
                     print(f"Current Environment Temperature: {temp}{unit}\n")
             else:
                 print(f"Sorry {self.memory['creator']}, but I don't recognize that command :(\nPlease try again.")
-
-
-
-# Execution block to initiate Cassian
-if __name__ == '__main__':
-
-    # Calculate directory and look for Cassian's memory
-    script_dir = Path(__file__).resolve().parent
-    target_memory = script_dir / 'memory' / 'memory.json'
-
-    # Instantiate and fire up system engine
-    assistant = CassianCore(target_memory)
-    assistant.run()
