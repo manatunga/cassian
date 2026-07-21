@@ -4,9 +4,19 @@ Primary execution file for Cassian
 
 # Import dependencies
 import json
+import os
+import subprocess
 import urllib.request
 from pathlib import Path
 from urllib.error import HTTPError, URLError 
+
+# ANSI Constants for styling Cassian's terminal UI
+CYAN = "\033[96m"
+MAGENTA = "\033[95m"
+GREEN = "\033[92m"
+YELLOW = "\033[93m"
+RED = "\033[91m"
+RESET = "\033[0m"
 
 
 # Master class for Cassian's core object
@@ -14,10 +24,29 @@ class CassianCore():
 
     def __init__(self, filepath):
         self.filepath = filepath
+        self.version = '1.6.0'
         self.memory = {}
         self.is_running = True
         self.weather_url = 'https://api.open-meteo.com/v1/forecast?latitude=6.84&longitude=79.92&current=temperature_2m'
     
+    # Method to clear terminal screen securely
+    def clear_screen(self):
+        subprocess.run('cls' if os.name == 'nt' else 'clear', shell=True)
+    
+    # Renders Cassian's ASCII header
+    def display_banner(self):
+        self.clear_screen()
+        banner = f"""{CYAN}
+  ██████╗ █████╗ ███████╗███████╗██╗██████╗ ███╗   ██╗
+ ██╔════╝██╔══██╗██╔════╝██╔════╝██║██╔══██╗████╗  ██║
+ ██║     ███████║███████╗███████╗██║██████╔╝██╔██╗ ██║
+ ██║     ██╔══██║╚════██║╚════██║██║██╔══██╗██║╚██╗██║
+ ╚██████╗██║  ██║███████║███████║██║██║  ██║██║ ╚████║
+  ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝{RESET}
+{MAGENTA}           -- CYBERPUNK HUD EDITION v{self.version} --           {RESET}
+========================================================"""
+        print(banner)
+
     # Method to save/update Cassian's memory
     def save_memory(self):
         self.filepath.parent.mkdir(parents=True, exist_ok=True)
@@ -27,16 +56,20 @@ class CassianCore():
     # Method to load Cassian's memory
     def load_memory(self):
         if self.filepath.exists():
-            print('Loading memory...')
+            print(f'{CYAN}Loading memory...{RESET}')
             with open(self.filepath, 'r', encoding='utf-8') as file:
                 self.memory = json.load(file)
                 self.memory['boot_count'] += 1
-            print('Memory initialised and loaded.')
-            print(f'{self.memory["system_name"]} System Online. Boot Count: {self.memory["boot_count"]}. Welcome back, {self.memory["creator"]}')
+                self.memory['version'] = self.version
+            print(f'{GREEN}Memory initialised and loaded.{RESET}')
+            print(f'{CYAN}{self.memory["system_name"]} System Online.{RESET}')
+            print(f'Boot Count: {GREEN}{self.memory["boot_count"]}{RESET} | Build: {MAGENTA}v{self.version}{RESET}')
+            print(f'Welcome back, {MAGENTA}{self.memory["creator"]}{RESET}\n')
         else:
-            print('Initialising memory for the first time...')
+            print(f'{YELLOW}Initialising memory for the first time...{RESET}')
             self.memory = {
                 'system_name': 'Cassian',
+                'version': self.version,
                 'creator': 'Jan',
                 'boot_count': 1,
                 'commands': {
@@ -45,60 +78,68 @@ class CassianCore():
                     'status': 'to view my current system metrics',
                     'telemetry': 'to fetch live environmental weather data', 
                     'help': 'to view all commands I recognize', 
+                    'clear': 'to clear my terminal',
                     'exit': 'to exit the system' },
                 'task_queue': []
             }
             self.save_memory()
-            print('Memory initialised and loaded.')
-            print(f'{self.memory["system_name"]} System Online. Boot Count: {self.memory["boot_count"]}. Welcome, {self.memory["creator"]}')
+            print(f'{GREEN}Memory initialised and loaded.{RESET}')
+            print(f'{CYAN}{self.memory["system_name"]} System Online.{RESET}')
+            print(f'Boot Count: {GREEN}{self.memory["boot_count"]}{RESET} | Build: {MAGENTA}v{self.version}{RESET}')
+            print(f'Welcome, {MAGENTA}{self.memory["creator"]}{RESET}\n')
     
     # Method to add tasks to queue
     def add_task(self):
-        condition_met = False
-        while not condition_met:
-            task = input('Enter the task you want me to do: >').lower().strip()
+        adding_tasks = True
+        while adding_tasks:
+            task = input(f'{MAGENTA}Enter the task you want me to do:{RESET} ').lower().strip()
             if task == '':
-                print(f"{self.memory['creator']}, there was no task entered...")
+                print(f"{YELLOW}{self.memory['creator']}, there was no task entered...{RESET}")
             else: 
                 self.memory['task_queue'].append(task)
-                if task in self.memory['task_queue']:
-                    print(f'Task, "{task}", has been added to queue.')
-                    condition_met = True
-                else:
-                    print(f'Oops! Error occured when adding your task, "{task}"')
+                print(f"{GREEN}Task \"{RESET}{task}{GREEN}\" added to queue successfully.{RESET}")
     
+            while True:
+                response = input(f"{CYAN}Do you have any more tasks to add?{RESET} (y/n) {CYAN}> {RESET}").lower().strip()
+                if response in ['y', 'yes']:
+                    break  
+                elif response in ['n', 'no']:
+                    adding_tasks = False  
+                    break 
+                else:
+                    print(f"{YELLOW}Please respond with '{RESET}y{YELLOW}' or '{RESET}n{YELLOW}'.{RESET}")
+        
+        print(f"{GREEN}Task queue updated.{RESET}\n")
+
     # Method to view all tasks currently in queue
     def view_tasks(self):
         if len(self.memory['task_queue']) == 0:
-            print('There are currently no tasks on queue.')
+            print(f'{YELLOW}There are currently no tasks on queue.{RESET}')
         else:
-            print('\nHere are all the tasks you have asked me to do:\n')
+            print(f"\n{CYAN}---------- ACTIVE TASK QUEUE ----------{RESET}\n")
             for index, task in enumerate(self.memory['task_queue']):
                 if index == 0:
-                    print(f'Current Task:  {task}')
+                    print(f"{GREEN}Current Task:{RESET}\t{task}")
                 elif index == 1:
-                    print(f'Next Task:  {task}\n')
+                    print(f"{MAGENTA}Next Task:{RESET}\t{task}\n")
                 else:
-                    print(f"Task {index + 1}:  {task}")
+                    print(f"Task {index + 1}:\t{task}")
             print('')
     
     # Method to view core performance details
     def view_status(self):
-        print('\nHere are my current system metrics:\n')
-        print(f"\tSystem Name:  {self.memory['system_name']}")
-        print(f"\tCreator:  {self.memory['creator']}")
-        print(f"\tBoot Count:  {self.memory['boot_count']}")
+        print(f"\n{CYAN}---------- SYSTEM METRICS ----------{RESET}\n")
+        print(f"\tSystem Name:\t{CYAN}{self.memory['system_name']}{RESET}")
+        print(f"\tVersion:\t{MAGENTA}{self.memory['version']}{RESET}")
+        print(f"\tCreator:\t{MAGENTA}{self.memory['creator']}{RESET}")
+        print(f"\tBoot Count:\t{GREEN}{self.memory['boot_count']}{RESET}")
         print('')
 
     # Method to view all functional commands for Cassian
     def view_commands(self):
-        print('\nHere is a list of all the commands that I recognize:\n')
-        print(f"\t'add task'  - {self.memory['commands']['add task']}")
-        print(f"\t'view tasks'  - {self.memory['commands']['view tasks']}")
-        print(f"\t'status'  - {self.memory['commands']['status']}")
-        print(f"\t'telemetry'  - {self.memory['commands']['telemetry']}")
-        print(f"\t'help'  - {self.memory['commands']['help']}")
-        print(f"\t'exit'  - {self.memory['commands']['exit']}")
+        print(f"\n{CYAN}---------- COMMAND INDEX ----------{RESET}\n")
+        for cmd, desc in self.memory['commands'].items():
+            print(f"\t{MAGENTA}'{cmd}'{RESET} - {desc}")
         print('')
     
     # Method to fetch environmental weather data
@@ -113,28 +154,29 @@ class CassianCore():
                 raw_telemetry = res.read().decode('utf-8')
                 telemetry = json.loads(raw_telemetry)
             
-            print('Network transmission complete. Reading is processed.\n')
+            print(f'{GREEN}Network transmission complete. Reading processed.{RESET}\n')
             return telemetry
         except HTTPError as err:
-            print(f"Oh my, I'm afraid the server responded with  HTTP status code {err.code}")
+            print(f"{RED}I'm afraid the server responded with HTTP status code {err.code}{RESET}")
             return None
         except URLError as err:
-            print(f"Apologies {self.memory['creator']}, but I failed to reach the server.\nThe reason was: {err.reason}")
+            print(f"{RED}Apologies {self.memory['creator']}, but I failed to reach the server.\nThe reason was: {err.reason}{RESET}")
             return None
     
     # Method to terminate Cassian session
     def exit(self):
-        print('Updating memory...')
+        print(f"{CYAN}Updating memory...{RESET}")
         self.save_memory()
-        print('Memory has been successfully updated. Terminating session...')
-        print(f"Have a nice day, {self.memory['creator']}!")
+        print(f"{GREEN}Memory successfully updated. Terminating session...{RESET}")
+        print(f"Have a nice day, {MAGENTA}{self.memory['creator']}!{RESET}")
     
     # Method to execute master loop and run Cassian
     def run(self):
-        print('Initializing system...')
+        self.display_banner()
+        print(f'{CYAN}Initializing system...{RESET}')
         self.load_memory()
         while self.is_running:
-            command = input('Waiting for your next command: >').lower().strip()
+            command = input(f"{MAGENTA}CASSIAN v{self.memory['version']}  {CYAN}>> {RESET}").lower().strip()
             if command == 'add task':
                 self.add_task()
             elif command == 'view tasks':
@@ -147,14 +189,16 @@ class CassianCore():
                 self.exit()
                 self.is_running = False
             elif command == '':
-                print('Whoa there! There was no command entered.')
+                print(f"{YELLOW}Whoa there! No command entered.{RESET}")
+            elif command == 'clear':
+                self.display_banner()
             elif command == 'telemetry':
-                print("Polling remote telemetry grid...")
+                print(f"{CYAN}Polling remote telemetry grid...{RESET}")
                 reading = self.fetch_telemetry()
                 if reading:
                     # Target specific target values inside the payload matrix
                     temp = reading["current"]["temperature_2m"]
                     unit = reading["current_units"]["temperature_2m"]
-                    print(f"Current Environment Temperature: {temp}{unit}\n")
+                    print(f"{CYAN}Current Environment Temperature:{RESET} {GREEN}{temp}{unit}{RESET}\n")
             else:
-                print(f"Sorry {self.memory['creator']}, but I don't recognize that command :(\nPlease try again.")
+                print(f"{YELLOW}Sorry {self.memory['creator']}, but I don't recognize that command :({RESET}\nPlease try again.")
