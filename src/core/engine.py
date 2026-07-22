@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import subprocess
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from urllib.error import HTTPError, URLError 
@@ -23,11 +24,10 @@ class CassianCore():
 
     def __init__(self, filepath):
         self.filepath = filepath
-        self.version = '0.9.0'
+        self.version = '0.9.5'  # Pre-release candidate status prior to v1.0 engine split
         self.memory = {}
         self.is_running = True
         self.chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
-        self.weather_url = 'https://api.open-meteo.com/v1/forecast?latitude=6.84&longitude=79.92&current=temperature_2m'
         
         # Setup error log file location
         log_file = self.filepath.parent / "system_errors.log"
@@ -38,8 +38,10 @@ class CassianCore():
             format='%(asctime)s - %(levelname)s - %(message)s'
         )
 
+
     def clear_screen(self):
         subprocess.run('cls' if os.name == 'nt' else 'clear', shell=True)
+
 
     def display_banner(self):
         self.clear_screen()
@@ -54,10 +56,12 @@ class CassianCore():
 ========================================================\n"""
         print(banner)
 
+
     def save_memory(self):
         self.filepath.parent.mkdir(parents=True, exist_ok=True)
         with open(self.filepath, 'w') as file:
             json.dump(self.memory, file, indent=4)
+
 
     def load_memory(self):
         if self.filepath.exists():
@@ -67,6 +71,7 @@ class CassianCore():
                 self.memory['boot_count'] += 1
                 self.memory['version'] = self.version
 
+            # Schema Migrations
             migrated_queue = []
             for item in self.memory.get('task_queue', []):
                 if isinstance(item, str):
@@ -75,6 +80,11 @@ class CassianCore():
                     migrated_queue.append(item)
             self.memory['task_queue'] = migrated_queue
             self.memory['task_queue'].sort(key=lambda x: x['priority'])
+
+            if 'notes' not in self.memory:
+                self.memory['notes'] = []
+            if 'location' not in self.memory:
+                self.memory['location'] = {'lat': 6.84, 'lon': 79.92}
 
             print(f'{GREEN}Memory initialised and loaded.{RESET}')
             print(f'{CYAN}{self.memory["system_name"]} System Online.{RESET}')
@@ -87,15 +97,22 @@ class CassianCore():
                 'version': self.version,
                 'creator': 'Jan',
                 'boot_count': 1,
+                'location': {'lat': 6.84, 'lon': 79.92},
+                'notes': [],
                 'commands': {
-                    'add task': 'to add a prioritized task to my queue', 
+                    'add task': 'to add a prioritized task to queue', 
                     'view tasks': 'to view all tasks sorted by priority', 
-                    'run task': 'to execute the top priority task',
-                    'run <app/url>': 'to directly execute an app or URL immediately',
-                    'status': 'to view my current system metrics',
+                    'delete task <num>': 'to remove a task by index',
+                    'clear tasks': 'to wipe all queued tasks',
+                    'run task': 'to execute top priority task',
+                    'run <app/url>': 'to execute an app or URL directly',
+                    'search <query>': 'to search Google directly in Chrome',
+                    'note <text>': 'to record a quick persistent note',
+                    'view notes': 'to view all saved notes',
+                    'status': 'to view system metrics',
                     'telemetry': 'to fetch live environmental weather data', 
-                    'help': 'to view all commands I recognize', 
-                    'clear': 'to clear my terminal',
+                    'help': 'to view command index', 
+                    'clear': 'to clear terminal',
                     'exit': 'to exit the system' 
                 },
                 'task_queue': []
@@ -105,6 +122,7 @@ class CassianCore():
             print(f'{CYAN}{self.memory["system_name"]} System Online.{RESET}')
             print(f'Boot Count: {GREEN}{self.memory["boot_count"]}{RESET} | Build: {MAGENTA}v{self.version}{RESET}')
             print(f'Welcome, {MAGENTA}{self.memory["creator"]}{RESET}\n')
+
 
     def add_task(self):
         adding_tasks = True
@@ -138,6 +156,7 @@ class CassianCore():
         
         print(f"{GREEN}Task queue updated and sorted by priority.{RESET}\n")
 
+
     def view_tasks(self):
         if len(self.memory['task_queue']) == 0:
             print(f'{YELLOW}There are currently no tasks in queue.{RESET}')
@@ -149,10 +168,45 @@ class CassianCore():
                 p_tag = p_labels.get(item['priority'], "[MED]")
                 task_desc = item['task']
                 if index == 0:
-                    print(f"{GREEN}TOP TASK:{RESET} {p_tag} {task_desc}")
+                    print(f"{GREEN}TOP TASK (1):{RESET}\t{p_tag} {task_desc}")
                 else:
-                    print(f"Task {index + 1}: {p_tag} {task_desc}")
+                    print(f"Task {index + 1}:\t{p_tag} {task_desc}")
             print('')
+
+
+    def delete_task(self, index_str):
+        if not self.memory['task_queue']:
+            print(f"{YELLOW}No tasks available to delete.{RESET}\n")
+            return
+        try:
+            index = int(index_str) - 1
+            if 0 <= index < len(self.memory['task_queue']):
+                removed = self.memory['task_queue'].pop(index)
+                self.save_memory()
+                print(f"{GREEN}Successfully deleted task: \"{removed['task']}\"{RESET}\n")
+            else:
+                print(f"{YELLOW}Invalid task number. There are only {len(self.memory['task_queue'])} task/s in queue.{RESET}")
+                view_task = input(f"{CYAN}Do you want to view tasks currently in queue?{RESET} (y/n) {CYAN}? {RESET}").lower().strip()
+                if view_task == 'y' or view_task == 'yes' or view_task == 'view tasks':
+                    self.view_tasks()
+                else:
+                    return
+        except ValueError:
+            print(f"{YELLOW}Please provide a valid task number (e.g., 'delete task 1').{RESET}\n")
+
+
+    def clear_tasks(self):
+        if not self.memory['task_queue']:
+            print(f"{YELLOW}Task queue is already empty.{RESET}\n")
+            return
+        confirm = input(f"{RED}Are you sure you want to clear all tasks? (y/n): > {RESET}").lower().strip()
+        if confirm in ['y', 'yes']:
+            self.memory['task_queue'] = []
+            self.save_memory()
+            print(f"{GREEN}Task queue cleared successfully.{RESET}\n")
+        else:
+            print(f"{CYAN}Operation cancelled.{RESET}\n")
+
 
     def execute_action(self, target_action):
         action = target_action.lower().strip()
@@ -187,6 +241,7 @@ class CassianCore():
         else:
             return False
 
+
     def run_task(self):
         if len(self.memory['task_queue']) == 0:
             print(f"{YELLOW}There are currently no tasks in queue.{RESET}\n")
@@ -205,12 +260,41 @@ class CassianCore():
             print(f"{YELLOW}No automated executable mapped for: \"{current_task}\".{RESET}")
             print(f"{CYAN}Leaving task in queue as a manual reminder.{RESET}\n")
 
+
     def execute_direct_action(self, action_string):
         print(f"\n{CYAN}Executing direct action:{RESET} {MAGENTA}\"{action_string}\"{RESET}")
         if self.execute_action(action_string):
             print(f"{GREEN}Action spawned successfully.{RESET}\n")
         else:
             print(f"{YELLOW}Unrecognized action: \"{action_string}\". Couldn't map to local app or URL.{RESET}\n")
+
+
+    def search_web(self, query):
+        encoded_query = urllib.parse.quote(query)
+        search_url = f"https://www.google.com/search?q={encoded_query}"
+        print(f"\n{CYAN}Searching Google for:{RESET} {MAGENTA}\"{query}\"{RESET}")
+        subprocess.Popen([self.chrome_path, search_url], shell=True)
+        print(f"{GREEN}Browser tab launched successfully.{RESET}\n")
+
+
+    def add_note(self, note_text):
+        if not note_text:
+            print(f"{YELLOW}Cannot add an empty note.{RESET}\n")
+            return
+        self.memory['notes'].append(note_text)
+        self.save_memory()
+        print(f"{GREEN}Note saved successfully.{RESET}\n")
+
+
+    def view_notes(self):
+        if not self.memory.get('notes'):
+            print(f"{YELLOW}No saved notes found.{RESET}\n")
+            return
+        print(f"\n{CYAN}---------- SAVED NOTES ----------{RESET}\n")
+        for i, note in enumerate(self.memory['notes'], 1):
+            print(f"{MAGENTA}[{i}]{RESET} {note}")
+        print('')
+
 
     def view_status(self):
         print(f"\n{CYAN}---------- SYSTEM METRICS ----------{RESET}\n")
@@ -220,16 +304,21 @@ class CassianCore():
         print(f"\tBoot Count:\t{GREEN}{self.memory['boot_count']}{RESET}")
         print('')
 
+
     def view_commands(self):
         print(f"\n{CYAN}---------- COMMAND INDEX ----------{RESET}\n")
         for cmd, desc in self.memory['commands'].items():
             print(f"\t{MAGENTA}'{cmd}'{RESET} - {desc}")
         print('')
 
+
     def fetch_telemetry(self):
+        lat = self.memory.get('location', {}).get('lat', 6.84)
+        lon = self.memory.get('location', {}).get('lon', 79.92)
+        url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m"
         try:
             req = urllib.request.Request(
-                self.weather_url,
+                url,
                 headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
             )
 
@@ -246,11 +335,13 @@ class CassianCore():
             print(f"{RED}Failed to reach server. Reason: {err.reason}{RESET}")
             return None
 
+
     def exit(self):
         print(f"{CYAN}Updating memory...{RESET}")
         self.save_memory()
         print(f"{GREEN}Memory successfully updated. Terminating session...{RESET}")
         print(f"Have a nice day, {MAGENTA}{self.memory['creator']}!{RESET}\n")
+
 
     def run(self):
         self.display_banner()
@@ -259,37 +350,54 @@ class CassianCore():
         
         while self.is_running:
             try:
-                command = input(f"{MAGENTA}CASSIAN v{self.memory['version']}  {CYAN}>> {RESET}").lower().strip()
-                if command == 'add task':
+                command = input(f"{MAGENTA}CASSIAN v{self.memory['version']}  {CYAN}>> {RESET}").strip()
+                cmd_lower = command.lower()
+
+                if cmd_lower == 'add task':
                     self.add_task()
-                elif command == 'view tasks':
+                elif cmd_lower == 'view tasks':
                     self.view_tasks()
-                elif command == 'status':
+                elif cmd_lower.startswith('delete task '):
+                    self.delete_task(cmd_lower[12:].strip())
+                elif cmd_lower == 'clear tasks':
+                    self.clear_tasks()
+                elif cmd_lower == 'status':
                     self.view_status()
-                elif command == 'help':
+                elif cmd_lower == 'help':
                     self.view_commands()
-                elif command == 'exit':
+                elif cmd_lower == 'exit':
                     self.exit()
                     self.is_running = False
-                elif command == '':
+                elif cmd_lower == '':
                     print(f"{YELLOW}Whoa there! No command entered.{RESET}")
-                elif command == 'clear':
+                elif cmd_lower == 'clear':
                     self.display_banner()
-                elif command == 'telemetry':
+                elif cmd_lower == 'telemetry':
                     print(f"{CYAN}Polling remote telemetry grid...{RESET}")
                     reading = self.fetch_telemetry()
                     if reading:
                         temp = reading["current"]["temperature_2m"]
                         unit = reading["current_units"]["temperature_2m"]
                         print(f"{CYAN}Current Environment Temperature:{RESET} {GREEN}{temp}{unit}{RESET}\n")
-                elif command == 'run task' or command == 'execute':
+                elif cmd_lower == 'run task' or cmd_lower == 'execute':
                     self.run_task()
-                elif command.startswith('run '):
+                elif cmd_lower.startswith('run '):
                     action = command[4:].strip()
                     if action == '':
                         print(f"{YELLOW}You didn't specify an action for direct execution.{RESET}")
                     else:
                         self.execute_direct_action(action)
+                elif cmd_lower.startswith('search '):
+                    query = command[7:].strip()
+                    if query == '':
+                        print(f"{YELLOW}Search query cannot be empty.{RESET}")
+                    else:
+                        self.search_web(query)
+                elif cmd_lower.startswith('note '):
+                    note_body = command[5:].strip()
+                    self.add_note(note_body)
+                elif cmd_lower == 'view notes':
+                    self.view_notes()
                 else:
                     print(f"{YELLOW}Sorry {self.memory['creator']}, but I don't recognize that command :({RESET}\nPlease try again.")
             except Exception as err:
