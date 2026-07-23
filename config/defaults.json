@@ -1,0 +1,8 @@
+{
+    "version": "0.9.5",
+    "default_location": {"lat": 6.84, "lon": 79.92},
+    "theme": "cyberpunk_hud",
+    "units": {
+        "temperature": "celsius"
+    }
+}

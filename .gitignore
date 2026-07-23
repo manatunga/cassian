@@ -1,15 +1,16 @@
-# 1. Python artifacts
-__pycache__/
-*.py[cod]
-
-# 2. Virtual environments
+# Environments
 .venv/
 venv/
-env/
+__pycache__/
+*.pyc
+.pytest_cache
 
-# 3. Environment variables
-.env
+# Cassian runtime data (user-specific, never committed)
+data/memory.json
+data/system_errors.log
 
-# 4. IDE
+# Editors / OS
 .vscode/
 .idea/
+.DS_Store
+

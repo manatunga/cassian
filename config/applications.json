@@ -1,0 +1,40 @@
+{
+    "processes": {
+        "notepad": {
+            "windows": [["notepad.exe"]],
+            "mac": [["open", "-a", "TextEdit"]],
+            "linux": [["gedit"], ["kate"], ["mousepad"], ["nano"]]
+        },
+        "calc": {
+            "windows": [["calc.exe"]],
+            "mac": [["open", "-a", "Calculator"]],
+            "linux": [["gnome-calculator"], ["kcalc"], ["xcalc"]]
+        },
+        "calculator": {
+            "windows": [["calc.exe"]],
+            "mac": [["open", "-a", "Calculator"]],
+            "linux": [["gnome-calculator"], ["kcalc"], ["xcalc"]]
+        },
+        "code": {
+            "windows": [["code"]],
+            "mac": [["code"]],
+            "linux": [["code"]]
+        },
+        "vscode": {
+            "windows": [["code"]],
+            "mac": [["code"]],
+            "linux": [["code"]]
+        },
+        "vs code": {
+            "windows": [["code"]],
+            "mac": [["code"]],
+            "linux": [["code"]]
+        }
+    },
+    "protocols": {
+        "steam": "steam://",
+        "spotify": "spotify://",
+        "discord": "discord://",
+        "whatsapp": "whatsapp://"
+    }
+}
