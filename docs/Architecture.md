@@ -52,12 +52,12 @@ User Input
 
 ### A. First-Time Boot Sequence
 
-1. src/main.py launches run_boot_sequence().
-2. MemoryManager checks for data/memory.json.
+1. `src/main.py` launches `run_boot_sequence()`.
+2. `MemoryManager` checks for `data/memory.json`.
 3. If absent:
    - Triggers interactive profile setup (asks for Name, City, and Password).
-   - services.location.city_to_coordinates() queries geopy for lat/lon.
-   - Hashes password using SHA-256 and writes memory.json.
+   - `services.location.city_to_coordinates()` queries `geopy` for lat/lon.
+   - Hashes password using `SHA-256` and writes `memory.json`.
 
 ### B. Command Execution (`run` vs. `open`)
 
@@ -88,4 +88,4 @@ All states persists in `data/memory.json`.
     "task_queue": []
 }
 ```
-- Self-Healing Migrations: On load, MemoryManager._migrate_schema() injects any missing keys or defaults into legacy memory files without wiping user data.
+- Self-Healing Migrations: On load, `MemoryManager._migrate_schema()` injects any missing keys or defaults into legacy memory files without wiping user data.
