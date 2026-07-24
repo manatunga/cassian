@@ -6,7 +6,7 @@ full "companion" system with voice, memory, and an embedded presence.
 
 ## Status
 
-`v1.0.0` — first complete, fully functional version
+`v1.0.1` — Cassian Terminal Assistant (v1): Debugged "run" command bug.
 
 ## Architecture at a Glance
 
