@@ -50,6 +50,7 @@ To support a new desktop app for `run <app>`:
 2. Add the process keyword or system protocol to the respective OS map. Do **not** hardcode executable paths in `execution/applications.py`.
 
 Example entry in `config/applications.json`:
+```json
 "processes": {
     "editor": {
         "windows": ["notepad.exe"],
@@ -57,6 +58,7 @@ Example entry in `config/applications.json`:
         "linux": ["gedit", "kate", "nano"]
     }
 }
+```
 
 ---
 
