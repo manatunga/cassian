@@ -68,7 +68,7 @@ class MemoryManager():
             coords = city_to_coordinates(city)
 
         if not coords:
-            terminal.print_warning(f"Could not resolve coordinates for '{city}'. Defaulting to Colombo...")
+            terminal.print_warning(f"Could not resolve coordinates for '{city.capitalize()}'. Defaulting to Colombo...")
             location_dict = dict(DEFAULT_LOCATION)
         else:
             location_dict = {'lat': coords[0], 'lon': coords[1]}
@@ -85,8 +85,8 @@ class MemoryManager():
 
         memory = profile.create_memory(
             version=self.version,
-            user=name,
-            city=city,
+            user=name.capitalize(),
+            city=city.capitalize(),
             location=location_dict,
             password=password
         )

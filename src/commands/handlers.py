@@ -28,7 +28,7 @@ def set_name(core, new_name: str):
         terminal.print_error("Acess denied: Incorrect password.\n")
         return
 
-    profile.update_user_name(core.memory, new_name)
+    profile.update_user_name(core.memory, new_name.capitalize())
     core.memory_manager.save(core.memeory)
     terminal.print_success(f"User name updated successfully to '{new_name}'.\n")
 
@@ -50,7 +50,7 @@ def set_city(core, new_city: str):
         terminal.print_error(f"Could not resolve coordinates for '{new_city}'. City location was not updated.")
         return
 
-    profile.update_user_city(core.memory, new_city, coords[0], coords[1])
+    profile.update_user_city(core.memory, new_city.capitalize(), coords[0], coords[1])
     core.memory_manager.save(core.memory)
     terminal.print_success(f"City updated to '{new_city}' (Lat: {coords[0]}, Lon: {coords[1]}).\n")
 
@@ -97,7 +97,7 @@ def view_tasks(core, _argument=None):
         p_tag = p_labels.get(item['priority'], '[MED]')
         task_desc = item['task']
         if index == 0:
-            print(f"{GREEN}TOP TASK (1)L{RESET}\t{p_tag} {task_desc}\n")
+            print(f"{GREEN}TOP TASK (1):{RESET}\t{p_tag} {task_desc}\n")
         else:
             print(f"Task {index + 1}:\t{p_tag} {task_desc}")
     print('')
