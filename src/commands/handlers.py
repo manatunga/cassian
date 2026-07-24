@@ -29,8 +29,8 @@ def set_name(core, new_name: str):
         return
 
     profile.update_user_name(core.memory, new_name.capitalize())
-    core.memory_manager.save(core.memeory)
-    terminal.print_success(f"User name updated successfully to '{new_name}'.\n")
+    core.memory_manager.save(core.memory)
+    terminal.print_success(f"User name updated successfully to '{new_name.capitalize()}'.\n")
 
 
 def set_city(core, new_city: str):
@@ -52,7 +52,7 @@ def set_city(core, new_city: str):
 
     profile.update_user_city(core.memory, new_city.capitalize(), coords[0], coords[1])
     core.memory_manager.save(core.memory)
-    terminal.print_success(f"City updated to '{new_city}' (Lat: {coords[0]}, Lon: {coords[1]}).\n")
+    terminal.print_success(f"City updated to '{new_city.capitalize()}' (Lat: {coords[0]}, Lon: {coords[1]}).\n")
 
 
 # ------------------------------------------

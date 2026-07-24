@@ -6,11 +6,11 @@ _PREFIXED_COMMANDS = {
     'del task': 'delete_task',
     'run task': 'run_task',
     'run ': 'run',
-    'open ': 'open_url',
+    'open': 'open_url',
     'search ': 'search',
     'note ': 'note',
-    'set name ': 'set_name',
-    'set city ': 'set_city'
+    'set name': 'set_name',
+    'set city': 'set_city'
 }
 
 def parse_commands(raw_command: str):
