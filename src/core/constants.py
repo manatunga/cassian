@@ -5,7 +5,7 @@ Meant to be immutable, unchangeable.
 
 # ---------- System Identity ----------
 APP_NAME = 'Cassian'
-VERSION = '0.9.5'
+VERSION = '1.0.1'
 
 # ---------- ANSI Color Codes for Terminal UI Styling ----------
 CYAN = "\033[96m"
