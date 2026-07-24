@@ -21,7 +21,7 @@ def build_registry() -> dict:
            'exit': handlers.exit_system,
            'clear': handlers.clear_screen_cmd,
            'temp': handlers.temp_cmd,
-           'run task': handlers.run_task,
+           'run_task': handlers.run_task,
            'execute': handlers.run_task,
            'run': handlers.run_direct,
            'open_url': handlers.open_url_cmd,

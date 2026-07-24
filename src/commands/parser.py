@@ -4,6 +4,7 @@ Umderstands language. Parsers commands for execution.
 
 _PREFIXED_COMMANDS = {
     'del task': 'delete_task',
+    'run task': 'run_task',
     'run ': 'run',
     'open ': 'open_url',
     'search ': 'search',

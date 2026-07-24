@@ -22,6 +22,12 @@ def execute_url(target_action: str) -> bool:
 def execute_action(target_action: str) -> bool:
     action = target_action.lower().strip()
 
+    if action.startswith('open '):
+        return execute_url(action[5:].strip())
+
+    if action.startswith('run '):
+        return execute_app(action[4:].strip())
+
     if applications.launch_application(action):
         return True
     if browser.try_handle(action):

@@ -17,14 +17,14 @@ from pathlib import Path
 from execution import system_open
 from utils import platform_utils
 
-CONFIG_PATH = Path(__file__).resolve().parent.parent / "config" / "applications.json"
+CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "config" / "applications.json"
 
 
 def _load_app_config() -> dict:
     if not CONFIG_PATH.exists():
         return {"processes": {}, "protocols": {}}
-    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    with open(CONFIG_PATH, "r", encoding="utf-8") as file:
+        return json.load(file)
 
 
 _APP_CONFIG = _load_app_config()
