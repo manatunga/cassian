@@ -16,7 +16,7 @@ User → UI → Command Parser → Registry → Handlers → Dispatcher → Exec
 
 Every layer only talks to the layer directly beneath it. For full breakdown of the modular design, check `docs/Architecure.md`.
 
-## Key Features (`v.1.0.0`)
+## Key Features (`v.1.0`)
 
 - **Interactive Onboarding:** First-time boot automatically initiates profile setup (Name, City location, and hashed password security).
 - **Location & Geocoding:** Automatically resolves city names into coordinates via geopy for weather and telemetry context.
