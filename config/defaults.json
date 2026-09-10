@@ -1,5 +1,5 @@
 {
-    "version": "0.9.5",
+    "version": "1.0.1",
     "default_location": {"lat": 6.84, "lon": 79.92},
     "theme": "cyberpunk_hud",
     "units": {
