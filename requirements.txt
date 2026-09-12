@@ -1,8 +1,17 @@
+astroid==4.0.4
 colorama==0.4.6
+dill==0.4.1
 geographiclib==2.1
 geopy==2.5.0
 iniconfig==2.3.0
+isort==9.0.1
+mccabe==0.7.0
+mypy_extensions==1.1.0
 packaging==26.2
+platformdirs==4.11.8
 pluggy==1.6.0
+pydeps==3.0.8
 Pygments==2.20.0
 pytest==9.1.1
+stdlib-list==0.12.0
+tomlkit==0.15.1
