@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cassian"
+dynamic = ["version"]
+description = "Personal Terminal Operating Layer"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "geopy>=2.5.0",
+    "colorama>=0.4.6"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.1.1",
+    "isort>=9.0.1",
+    "pydeps>=3.0.8"
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "core.constants.VERSION"}
+
+[project.scripts]
+cassian = "main:main"

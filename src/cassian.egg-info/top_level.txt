@@ -1,0 +1,8 @@
+commands
+core
+execution
+main
+memory
+services
+ui
+utils
