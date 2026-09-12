@@ -6,6 +6,7 @@ clear(), telemetry(), etc. Handlers receive the running CassianCore instance
 
 import getpass
 from memory import tasks, profile
+from datetime import datetime, UTC
 from core.constants import CYAN, MAGENTA, RESET
 from services.location import city_to_coordinates
 from execution.dispatcher import execute_action
@@ -206,10 +207,16 @@ def search_cmd(core, query):
 #----------------------------
 
 def note_cmd(core, note_text):
-    if not note_text:
+    if not note_text or not note_text.strip():
         terminal.print_warning('Cannot add an empty note.\n')
         return
-    core.memory['notes'].append(note_text)
+
+    note_entry = {
+        'text': note_text.strip(),
+        'created_at': datetime.now(UTC).isoformat()
+    }
+    
+    core.memory.setdefault('notes', []).append(note_entry)
     core.memory_manager.save(core.memory)
     terminal.print_success('Note saved successfully.\n')
 
@@ -221,9 +228,24 @@ def view_notes(core, _argument=None):
         return
 
     terminal.print_header('SAVED NOTES')
-    from core.constants import MAGENTA, RESET
+    from core.constants import MAGENTA, YELLOW, RESET
+
     for i, note in enumerate(notes, 1):
-        print(f"{MAGENTA}[{i}]{RESET} {note}")
+        if isinstance(note, str):
+            text = note
+            created_at = 'Unknown date'
+        else:
+            text = note.get('text', '')
+            created_at_value = note.get('created_at')
+            if created_at_value:
+                try:
+                    created_at = datetime.fromisoformat(created_at_value).strftime('%B %d, %Y at %I:%M %p')
+                except ValueError:
+                    created_at = 'Unknown date'
+            else:
+                created_at = 'Unknown date'
+        
+        print(f"{MAGENTA}[{i}]{RESET} {YELLOW}[{created_at}]{RESET} {text}")
     print('')
 
 
