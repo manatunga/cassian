@@ -6,7 +6,7 @@ full "companion" system with voice, memory, and an embedded presence.
 
 ## Status
 
-`v1.0.1` — Cassian Terminal Assistant (v1): Debugged "run" command bug.
+`v1.0.2` — Cassian Terminal Assistant (v1): Automatic timestamp on note creation.
 
 ## Architecture at a Glance
 
