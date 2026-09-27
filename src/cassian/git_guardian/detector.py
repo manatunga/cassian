@@ -1,13 +1,13 @@
 """
 Detection layer for Cassian's Git guardian. Holds functions to detect
-whether Git is installed in the current local machine, and whether the 
+whether Git is installed in the current local machine, and whether the
 codebase or directory is a git repository.
 """
 
 from __future__ import annotations
 
-import subprocess
 import shutil
+import subprocess
 from pathlib import Path
 
 
@@ -23,7 +23,7 @@ def get_repo_root(start_path: Path | None = None) -> Path | None:
             cwd=cwd,
             capture_output=True,
             text=True,
-            check=False
+            check=False,
         )
         if result.returncode != 0:
             return None
@@ -32,4 +32,3 @@ def get_repo_root(start_path: Path | None = None) -> Path | None:
 
     except OSError:
         return None
-        
