@@ -6,13 +6,11 @@ and classifies accordingly.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from collections.abc import Callable, Sequence
+from dataclasses import dataclass
 from enum import Enum
 
-_VALUE_OPTS = frozenset(
-    {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--config-env"}
-)
+_VALUE_OPTS = frozenset({"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--config-env"})
 _FLAG_OPTS = frozenset(
     {
         "-p",
@@ -28,9 +26,7 @@ _FLAG_OPTS = frozenset(
         "--no-optional-locks",
     }
 )
-_LONG_WITH_VALUE = frozenset(
-    {"--git-dir", "--work-tree", "--namespace", "--config-env"}
-)
+_LONG_WITH_VALUE = frozenset({"--git-dir", "--work-tree", "--namespace", "--config-env"})
 
 
 @dataclass(frozen=True)
@@ -105,9 +101,7 @@ def classify(argv: Sequence[str]) -> Verdict:
     if result.subcommand in _ALWAYS_SAFE:
         return Verdict.SAFE
 
-    if result.subcommand in _CONDITIONAL and _CONDITIONAL[result.subcommand](
-        result.args
-    ):
+    if result.subcommand in _CONDITIONAL and _CONDITIONAL[result.subcommand](result.args):
         return Verdict.SAFE
 
     return Verdict.SNAPSHOT

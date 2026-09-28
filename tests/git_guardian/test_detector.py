@@ -2,6 +2,8 @@
 Automated test suite for Git guardian's detection layer.
 """
 
+from __future__ import annotations
+
 import shutil
 import subprocess
 from pathlib import Path
